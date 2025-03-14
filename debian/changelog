@@ -1,4 +1,11 @@
-regress-stack (0.2.0) UNRELEASED; urgency=medium
+regress-stack (0.2.2) plucky; urgency=medium
+
+  * Implement magnum
+  * Ensure inherited role is correctly managed for dalmatatian+
+
+ -- Guillaume Boutry <guillaume.boutry@canonical.com>  Fri, 14 Mar 2025 16:56:37 +0100
+
+regress-stack (0.2.0) plucky; urgency=medium
 
   * Add copyright and license headers to all source code.
   * d/control: Add Vcs fields.
