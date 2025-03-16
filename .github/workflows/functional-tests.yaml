@@ -5,11 +5,31 @@ on:
 
 
 jobs:
+  metadata:
+    name: Generate matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Generate matrix
+        id: generate-matrix
+        run: |
+          set -euxo pipefail
+          echo -n matrix= >> ${GITHUB_OUTPUT}
+          curl -s https://api.launchpad.net/devel/ubuntu/series | \
+            jq '.entries[] | select(.version >= "22.04" and
+                                    (.status == "Supported" or
+                                     .status == "Current Stable Release" or
+                                     .status == "Active Development")) |
+                .name' | jq -s | jq -cs '{"base": add}' | tee -a ${GITHUB_OUTPUT}
+          cat ${GITHUB_OUTPUT}
+
   functional-tests:
+    needs:
+      - metadata
     strategy:
       fail-fast: false
-      matrix:
-        base: [noble, jammy]
+      matrix: ${{ fromJson(needs.metadata.outputs.matrix) }}
     runs-on: [self-hosted, linux, X64, large, noble]
     steps:
     - name: Checkout repository
