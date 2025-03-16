@@ -17,7 +17,7 @@ jobs:
           set -euxo pipefail
           echo -n matrix= >> ${GITHUB_OUTPUT}
           curl -s https://api.launchpad.net/devel/ubuntu/series | \
-            jq '.entries[] | select(.version >= "22.04" and
+            jq '.entries[] | select(.version >= "20.04" and
                                     (.status == "Supported" or
                                      .status == "Current Stable Release" or
                                      .status == "Active Development")) |
@@ -63,6 +63,10 @@ jobs:
     - name: Launch instance
       run: |
         set -euxo pipefail
+        cp .github/lxd-instance-config.yml.in.${{ matrix.base }} \
+          .github/lxd-instance-config.yml || \
+          cp .github/lxd-instance-config.yml.in \
+            .github/lxd-instance-config.yml
         cat .github/lxd-instance-config.yml | \
           lxc launch ubuntu-daily:${{ matrix.base }} regress-stack \
             --vm -c limits.cpu=6 -c limits.memory=24GiB
@@ -71,6 +75,41 @@ jobs:
           lxc exec regress-stack -- cloud-init status --wait && break
         done
         lxc file push -r . regress-stack/root/
+
+    - name: focal post launch steps
+      if: ${{ matrix.base == 'focal' }}
+      run: |
+        # The mysql-server in focal-updates does currently not work on
+        # initial install, install -release version and upgrade into -updates
+        # instead.
+        lxc exec regress-stack -- \
+          sh -c 'apt-get -y install mysql-server=8.0.19-0ubuntu5'
+        # cloud-init on focal appears to be unable to retrieve cloud-config
+        # from LXD.  Seed it into the nocloud provider and reboot.
+        cat .github/lxd-instance-config.yml | yq -r '.config[]' | \
+          lxc exec regress-stack -- \
+            sh -c 'cat > /var/lib/cloud/seed/nocloud-net/user-data'
+        lxc exec regress-stack -- \
+          sh -c 'cloud-init clean && reboot'
+        while true; do
+          sleep 5
+          lxc exec regress-stack -- cloud-init status --wait && break
+        done
+        # The python3-pyroute2 version in focal is too old, upgrade it from
+        # UCA.
+        lxc exec regress-stack -- \
+          sh -c '
+            add-apt-repository -y cloud-archive:yoga &&
+            apt-get -y install python3-pyroute2 &&
+            rm -f /etc/apt/sources.list.d/cloudarchive-yoga.list &&
+            apt-get update'
+        # tempestconf is not available in focal, install from pip.
+        lxc exec regress-stack -- \
+          sh -c '
+            pip install --system "python-tempestconf==2.5.0" &&
+            ln -s /usr/local/bin/discover-tempest-config \
+              /usr/bin/discover-tempest-config'
+
 
     - name: Plan
       run: |
