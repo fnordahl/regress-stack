@@ -16,7 +16,7 @@ regress-stack (0.1.0) plucky; urgency=medium
   * d/control,copyright: Update project location.
 
   [Guillaume Boutry]
-  * Initial release.
+  * Initial release (LP: #2103443)
   * Implement magnum
   * Ensure inherited role is correctly managed for dalmatian+
 
