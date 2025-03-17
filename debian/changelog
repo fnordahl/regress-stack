@@ -1,7 +1,7 @@
 regress-stack (0.2.2) plucky; urgency=medium
 
   * Implement magnum
-  * Ensure inherited role is correctly managed for dalmatatian+
+  * Ensure inherited role is correctly managed for dalmatian+
 
  -- Guillaume Boutry <guillaume.boutry@canonical.com>  Fri, 14 Mar 2025 16:56:37 +0100
 
