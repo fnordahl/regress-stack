@@ -1,4 +1,4 @@
-regress-stack (0.1.0) plucky; urgency=medium
+regress-stack (0.2.0) plucky; urgency=medium
 
   [James Page]
   * Add copyright and license headers to all source code.
@@ -16,8 +16,14 @@ regress-stack (0.1.0) plucky; urgency=medium
   * d/control,copyright: Update project location.
 
   [Guillaume Boutry]
-  * Initial release (LP: #2103443)
+  * First full release (LP: #2103443)
   * Implement magnum
   * Ensure inherited role is correctly managed for dalmatian+
 
  -- Guillaume Boutry <guillaume.boutry@canonical.com>  Mon, 17 Mar 2025 19:05:09 +0100
+
+regress-stack (0.1.0) plucky; urgency=medium
+
+  * Initial release.
+
+ -- Guillaume Boutry <guillaume.boutry@canonical.com>  Thu, 06 Mar 2025 15:35:06 +0000
