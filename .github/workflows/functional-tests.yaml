@@ -3,6 +3,10 @@ name: Functional Tests
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      ppa:
+        required: false
+        type: string
 
 
 jobs:
@@ -38,7 +42,7 @@ jobs:
           - proposed
         ppa:
           - ""
-          - ppa:ubuntu-security-proposed/ppa
+          - "${{ inputs.ppa || 'ppa:ubuntu-security-proposed/ppa' }}"
         ceph:
           - ""
           - ceph
