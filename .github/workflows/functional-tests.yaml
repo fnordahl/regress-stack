@@ -48,7 +48,7 @@ jobs:
           - ceph
         exclude:
           - proposed: proposed
-            ppa: ppa:ubuntu-security-proposed/ppa
+            ppa: "${{ inputs.ppa || 'ppa:ubuntu-security-proposed/ppa' }}"
     runs-on: [self-hosted, linux, X64, large, noble]
     steps:
     - name: Checkout repository
