@@ -106,6 +106,13 @@ def test(concurrency: int):
         exclude_regexes = getattr(mod.module, "TEST_EXCLUDE_REGEXES", [])
         test_regexes.append((includes_regexes, exclude_regexes))
 
+    test_regexes.append(
+        (
+            os.environ.get("TEST_INCLUDE_REGEXES", "").split("|"),
+            os.environ.get("TEST_EXCLUDE_REGEXES", "").split("|"),
+        )
+    )
+
     LOG.info("Building test list")
     global_include_regex = ["smoke"]
     global_exclude_regex = []
