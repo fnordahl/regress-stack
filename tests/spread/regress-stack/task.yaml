@@ -4,6 +4,8 @@ environment:
   FEATURE_ENABLE_CEPH: $(HOST:echo ${FEATURE_ENABLE_CEPH:-false})
   TEST_INCLUDE_REGEXES: $(HOST:echo ${TEST_INCLUDE_REGEXES:-""})
   TEST_EXCLUDE_REGEXES: $(HOST:echo ${TEST_EXCLUDE_REGEXES:-""})
+  TEMPEST_SOURCE: $(HOST:echo ${TEMPEST_SOURCE:-apt})
+  TEMPEST_CHANNEL: $(HOST:echo ${TEMPEST_CHANNEL:-""})
 
 prepare: |
   set -euxo pipefail
@@ -37,7 +39,6 @@ prepare: |
     heat-api \
     heat-api-cfn \
     heat-engine \
-    heat-tempest-plugin \
     keystone \
     libapt-pkg-dev \
     mysql-server \
@@ -56,10 +57,8 @@ prepare: |
     python3-apt \
     python3-networkx \
     python3-openstackclient \
-    python3-tempestconf \
     rabbitmq-server \
-    spice-html5 \
-    tempest"
+    spice-html5"
   if [ "${FEATURE_ENABLE_CEPH:-false}" != false ]; then
     PACKAGES+="
       ceph-mgr \
@@ -69,6 +68,20 @@ prepare: |
       cinder-api \
       cinder-scheduler \
       cinder-volume"
+  fi
+  if [ "${TEMPEST_SOURCE:-apt}" = apt ]; then
+    PACKAGES+="
+      heat-tempest-plugin \
+      python3-tempestconf \
+      tempest"
+  elif [ "${TEMPEST_SOURCE:-apt}" = snap ]; then
+    PACKAGES+="
+      python3-stestr"
+    snap install ${TEMPEST_CHANNEL:+--channel $TEMPEST_CHANNEL} tempest
+
+    # Apparmor will not let us mess with files not owned by us, even when we
+    # are root.
+    chown -R $LOGNAME:$LOGNAME $SPREAD_PATH
   fi
   apt-get update
   apt-get -y install $PACKAGES

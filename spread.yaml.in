@@ -9,7 +9,7 @@ backends:
     systems:
       @@SPREAD_SYSTEMS@@
 
-path: /home/test
+path: /root/regress-stack
 
 suites:
   tests/spread/:
