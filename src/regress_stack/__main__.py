@@ -3,6 +3,7 @@
 
 import argparse
 import logging
+import os
 import pathlib
 import subprocess
 import typing
@@ -67,7 +68,8 @@ def collect_logs():
 
 @utils.measure_time
 def test(concurrency: int):
-    env = keystone.auth_env()
+    env = os.environ.copy()
+    env.update(keystone.auth_env())
     dir_name = "mycloud01"
     release = utils.release()
     utils.run("tempest", ["init", dir_name])
