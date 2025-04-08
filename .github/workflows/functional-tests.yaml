@@ -11,6 +11,17 @@ on:
         description: "JSON encoded list of releases."
         required: false
         type: string
+      tempest_channel:
+        description: Channel to use for snap based tempest install.
+        required: false
+        type: string
+      tempest_source:
+        description: From where should tempest be installed.
+        options:
+          - apt
+          - snap
+        required: false
+        type: choice
 
 jobs:
   metadata:
@@ -52,6 +63,9 @@ jobs:
         exclude:
           - proposed: proposed
             ppa: "${{ inputs.ppa || 'ppa:ubuntu-security-proposed/ppa' }}"
+    env:
+      TEMPEST_CHANNEL: "${{ inputs.tempest_source }}"
+      TEMPEST_SOURCE: "${{ inputs.tempest_source }}"
     runs-on: [self-hosted, linux, X64, large, noble]
     steps:
     - name: Checkout repository
