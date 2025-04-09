@@ -104,18 +104,24 @@ def test(concurrency: int):
                 configure(tempest_conf)
         includes_regexes = getattr(mod.module, "TEST_INCLUDE_REGEXES", [])
         exclude_regexes = getattr(mod.module, "TEST_EXCLUDE_REGEXES", [])
-        if not includes_regexes:
-            # If no include defined, it would get too much tests
-            continue
         test_regexes.append((includes_regexes, exclude_regexes))
+
+    test_regexes.append(
+        (
+            os.environ.get("TEST_INCLUDE_REGEXES", "").split("|"),
+            os.environ.get("TEST_EXCLUDE_REGEXES", "").split("|"),
+        )
+    )
 
     LOG.info("Building test list")
     global_include_regex = ["smoke"]
     global_exclude_regex = []
 
     for include_regexes, exclude_regexes in test_regexes:
-        global_include_regex.append("|".join(include_regexes))
-        global_exclude_regex.append("|".join(exclude_regexes))
+        if include_regexes and include_regexes[0]:
+            global_include_regex.append("|".join(include_regexes))
+        if exclude_regexes and exclude_regexes[0]:
+            global_exclude_regex.append("|".join(exclude_regexes))
 
     regress_tests = utils.run(
         "tempest",

@@ -7,7 +7,29 @@ on:
       ppa:
         required: false
         type: string
-
+      release:
+        description: "JSON encoded list of releases."
+        required: false
+        type: string
+      tempest_channel:
+        description: Channel to use for snap based tempest install.
+        required: false
+        type: string
+      tempest_source:
+        description: From where should tempest be installed.
+        options:
+          - apt
+          - snap
+        required: false
+        type: choice
+      test_exclude_regexes:
+        description: Regexes for tests to exclude separated by '|'.
+        required: false
+        type: string
+      test_include_regexes:
+        description: Regexes for tests to include separated by '|'.
+        required: false
+        type: string
 
 jobs:
   metadata:
@@ -36,7 +58,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        release: ${{ fromJson(needs.metadata.outputs.releases) }}
+        release: ${{ inputs.release && fromJson(inputs.release) || fromJson(needs.metadata.outputs.releases) }}
         proposed:
           - ""
           - proposed
@@ -48,7 +70,12 @@ jobs:
           - ceph
         exclude:
           - proposed: proposed
-            ppa: ppa:ubuntu-security-proposed/ppa
+            ppa: "${{ inputs.ppa || 'ppa:ubuntu-security-proposed/ppa' }}"
+    env:
+      TEMPEST_CHANNEL: "${{ inputs.tempest_source }}"
+      TEMPEST_SOURCE: "${{ inputs.tempest_source }}"
+      TEST_EXCLUDE_REGEXES: "${{ inputs.test_exclude_regexes }}"
+      TEST_INCLUDE_REGEXES: "${{ inputs.test_include_regexes }}"
     runs-on: [self-hosted, linux, X64, large, noble]
     steps:
     - name: Checkout repository
